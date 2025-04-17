@@ -6,7 +6,7 @@ use App\Models\Jabatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class jabatanController extends Controller
+class JabatanController extends Controller
 {    
     /**
      * index
@@ -16,7 +16,7 @@ class jabatanController extends Controller
     public function index()
     {
         //get data from table jabatans
-        $jabatans = jabatan::latest()->get();
+        $jabatans = Jabatan::latest()->get();
 
         //make response JSON
         return response()->json([
@@ -36,7 +36,7 @@ class jabatanController extends Controller
     public function show($id)
     {
         //find jabatan by ID
-        $jabatan = jabatan::findOrfail($id);
+        $jabatan = Jabatan::findOrfail($id);
 
         //make response JSON
         return response()->json([
@@ -67,7 +67,7 @@ class jabatanController extends Controller
         }
 
         //save to database
-        $jabatan = jabatan::create([
+        $jabatan = Jabatan::create([
             'nama_jabatan'     => $request->nama_jabatan,
             'deskripsi'   => $request->deskripsi
         ]);
@@ -112,7 +112,7 @@ class jabatanController extends Controller
         }
 
         //find jabatan by ID
-        $jabatan = jabatan::findOrFail($jabatan->id);
+        $jabatan = Jabatan::findOrFail($jabatan->id);
 
         if($jabatan) {
 
@@ -143,23 +143,26 @@ class jabatanController extends Controller
      *
      * @param  mixed $id
      * @return void
-     */
-    public function destroy($id)
-    {
-        //find jabatan by ID
-        $jabatan = jabatan::findOrfail($id);
+     */public function destroy($id)
+{
+    try {
+        $jabatan = Jabatan::findOrFail($id);
 
-        if($jabatan) {
+        $jabatan->delete();
 
-            //delete jabatan
-            $jabatan->delete();
+        return response()->json([
+            'success' => true,
+            'message' => 'jabatan Deleted',
+        ], 200);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'jabatan Deleted',
-            ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error deleting jabatan: ' . $e->getMessage(),
+        ], 500);
+    }
+}
 
-        }
 
         //data jabatan not found
         return response()->json([
