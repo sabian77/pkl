@@ -3,171 +3,159 @@
 namespace App\Http\Controllers;
 
 use App\Models\Jabatan;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 
 class JabatanController extends Controller
-{    
+{
     /**
-     * index
-     *
-     * @return void
+     * Display a listing of the resource.
      */
     public function index()
     {
-        //get data from table jabatans
-        $jabatans = Jabatan::latest()->get();
-
-        //make response JSON
+        //ambil data dari model jabatan
+        $jabatan = Jabatan::latest()->get();
+        //membuat response json
         return response()->json([
             'success' => true,
-            'message' => 'List Data jabatan',
-            'data'    => $jabatans  
+            'message' => 'Data jabatan',
+            'data' => $jabatan
         ], 200);
 
-    }
-    
-     /**
-     * show
-     *
-     * @param  mixed $id
-     * @return void
-     */
-    public function show($id)
-    {
-        //find jabatan by ID
-        $jabatan = Jabatan::findOrfail($id);
-
-        //make response JSON
-        return response()->json([
-            'success' => true,
-            'message' => 'Detail Data jabatan',
-            'data'    => $jabatan 
-        ], 200);
 
     }
-    
+
+
     /**
-     * store
-     *
-     * @param  mixed $request
-     * @return void
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //set validation
+        //buat validasi
         $validator = Validator::make($request->all(), [
-            'nama_jabatan'   => 'required',
+            'nama_jabatan' => 'required',
             'deskripsi' => 'required',
         ]);
         
-        //response error validation
+        //respon jika validasi gagal
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
-        //save to database
+        //jika validasi berhasil
         $jabatan = Jabatan::create([
-            'nama_jabatan'     => $request->nama_jabatan,
-            'deskripsi'   => $request->deskripsi
+            'nama_jabatan' => $request->nama_jabatan,
+            'deskripsi' => $request->deskripsi,
         ]);
 
-        //success save to database
-        if($jabatan) {
-
+        //sukses menyimpan data
+        if ($jabatan) {
             return response()->json([
                 'success' => true,
-                'message' => 'jabatan Created',
-                'data'    => $jabatan  
-            ], 201);
-
-        } 
-
-        //failed save to database
-        return response()->json([
-            'success' => false,
-            'message' => 'jabatan Failed to Save',
-        ], 409);
-
-    }
-    
-    /**
-     * update
-     *
-     * @param  mixed $request
-     * @param  mixed $jabatan
-     * @return void
-     */
-    public function update(Request $request, jabatan $jabatan)
-    {
-        //set validation
-        $validator = Validator::make($request->all(), [
-            'nama_jabatan'   => 'required',
-            'deskripsi' => 'required',
-        ]);
-        
-        //response error validation
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
-
-        //find jabatan by ID
-        $jabatan = Jabatan::findOrFail($jabatan->id);
-
-        if($jabatan) {
-
-            //update jabatan
-            $jabatan->update([
-                'nama_jabatan'     => $request->nama_jabatan,
-                'deskripsi'   => $request->deskripsi
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'jabatan Updated',
-                'data'    => $jabatan  
+                'message' => 'Data jabatan berhasil ditambahkan',
+                'data' => $jabatan
             ], 200);
-
         }
 
-        //data jabatan not found
+        //gagal menyimpan data
         return response()->json([
             'success' => false,
-            'message' => 'jabatan Not Found',
-        ], 404);
+            'message' => 'Data jabatan gagal ditambahkan',
+        ], 400);
 
     }
-    
+
     /**
-     * destroy
-     *
-     * @param  mixed $id
-     * @return void
-     */public function destroy($id)
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+                //menampilkan jabatqan berdasar id
+                $jabatan = Jabatan::findorFail($id);
+                //membuat response json
+                return response()->json([
+                    'success' => true,
+                    'message' => 'detail Data jabatan',
+                    'data' => $jabatan
+                ], 200);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
 {
-    try {
-        $jabatan = Jabatan::findOrFail($id);
+    // Validasi input
+    $validator = Validator::make($request->all(), [
+        'nama_jabatan' => 'required',
+        'deskripsi' => 'required',
+    ]);
 
-        $jabatan->delete();
+    if ($validator->fails()) {
+        return response()->json($validator->errors(), 400);
+    }
 
+    // Cari data berdasarkan ID
+    $jabatan = Jabatan::findOrFail($id);
+
+    // Coba update
+    $updated = $jabatan->update([
+        'nama_jabatan' => $request->nama_jabatan,
+        'deskripsi' => $request->deskripsi,
+    ]);
+
+    if ($updated) {
         return response()->json([
             'success' => true,
-            'message' => 'jabatan Deleted',
+            'message' => 'Data jabatan berhasil diupdate',
+            'data' => $jabatan
         ], 200);
-
-    } catch (\Exception $e) {
+    } else {
         return response()->json([
             'success' => false,
-            'message' => 'Error deleting jabatan: ' . $e->getMessage(),
-        ], 500);
+            'message' => 'Data jabatan gagal diupdate',
+        ], 400);
     }
 }
 
 
-        //data jabatan not found
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //berdasarkan id, cari data yang akan dihapus
+        $jabatan = Jabatan::findorFail($id);
+
+        //hapus data
+        $jabatan->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data jabatan berhasil dihapus',
+        ], 200);
+        
+        //gagal menghapus data
         return response()->json([
             'success' => false,
-            'message' => 'jabatan Not Found',
-        ], 404);
+            'message' => 'Data jabatan gagal dihapus',
+        ], 400);
     }
+
 }
