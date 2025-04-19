@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::resource('/jabatan', JabatanController::class);
+Route::resource('/karyawan', KaryawanController::class);
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
