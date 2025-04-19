@@ -14,7 +14,7 @@ class KaryawanController extends Controller
     public function index()
     {
         //ambil data dari model jabatan
-        $karyawan = Karyawan::latest()->get();
+        $karyawan = karyawan::latest()->get();
         //membuat response json
         return response()->json([
             'success' => true,
@@ -39,7 +39,6 @@ class KaryawanController extends Controller
      */
     public function store(Request $request)
     {
-        //buat validasi
         $validator = Validator::make($request->all(), [
             'nama' => 'required',
             'nik' => 'required',
@@ -50,15 +49,20 @@ class KaryawanController extends Controller
             'no_hp' => 'required',
             'email' => 'required',
             'status' => 'required',
-            'foto' => 'required',
+            'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
-        
-        //respon jika validasi gagal
+    
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-
-        //jika validasi berhasil
+    
+        // proses upload file
+        $fotoPath = null;
+        if ($request->hasFile('foto')) {
+            $foto = $request->file('foto');
+            $fotoPath = $foto->store('foto_karyawan', 'public'); // disimpan di storage/app/public/foto_karyawan
+        }
+    
         $karyawan = Karyawan::create([
             'nama' => $request->nama,
             'nik' => $request->nik,
@@ -68,24 +72,17 @@ class KaryawanController extends Controller
             'alamat' => $request->alamat,
             'no_hp' => $request->no_hp,
             'email' => $request->email,
+            'status' => $request->status,
+            'foto' => $fotoPath, // simpan path file, bukan objek file
         ]);
-
-        //sukses menyimpan data
-        if ($karyawan) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Data karyawan berhasil ditambahkan',
-                'data' => $karyawan
-            ], 200);
-        }
-
-        //gagal menyimpan data
+    
         return response()->json([
-            'success' => false,
-            'message' => 'Data karyawan gagal ditambahkan',
-        ], 400);
-
+            'success' => true,
+            'message' => 'Data karyawan berhasil ditambahkan',
+            'data' => $karyawan
+        ], 200);
     }
+    
 
     /**
      * Display the specified resource.
@@ -93,7 +90,7 @@ class KaryawanController extends Controller
     public function show(string $id)
     {
                 //menampilkan jabatqan berdasar id
-                $karyawan = Karyawan::findorFail($id);
+                $karyawan = karyawan::findorFail($id);
                 //membuat response json
                 return response()->json([
                     'success' => true,
@@ -134,7 +131,7 @@ class KaryawanController extends Controller
     }
 
     // Cari data berdasarkan ID
-    $karyawan = Karyawan::findOrFail($id);
+    $karyawan = karyawan::findOrFail($id);
 
     // Coba update
     $updated = $karyawan->update([
@@ -171,7 +168,7 @@ class KaryawanController extends Controller
     public function destroy(string $id)
     {
         //berdasarkan id, cari data yang akan dihapus
-        $karyawan = Karyawan::findorFail($id);
+        $karyawan = karyawan::findorFail($id);
 
         //hapus data
         $karyawan->delete();

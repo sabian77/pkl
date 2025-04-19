@@ -39,6 +39,10 @@ return [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
+        ],//guard api unutuk driver valuee jwt
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'users',
         ],
     ],
 

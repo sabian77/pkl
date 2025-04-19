@@ -5,28 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Karyawan extends Model
+class Divisi extends Model
 {
     use HasFactory;
 
-    protected $table = 'karyawans';
-
+    protected $table = 'divisis';
     protected $fillable = [
-        'nama',
-        'nik',
-        'tempat_lahir', 
-        'tanggal_lahir',
-        'jenis_kelamin',
-        'alamat',
-        'no_hp',
-        'email',
-        'status',
-        'foto',
+        'nama_divisi',
+        'deskripsi',
     ];
 
     //one to many
     public function pekerjaan()
     {
         return $this->hasMany(Pekerjaan::class);
-    }   
+    }
 }
