@@ -41,7 +41,7 @@ return [
             'provider' => 'users',
         ],//guard api unutuk driver valuee jwt
         'api' => [
-            'driver' => 'passport',
+            'driver' => 'jwt',
             'provider' => 'users',
         ],
     ],

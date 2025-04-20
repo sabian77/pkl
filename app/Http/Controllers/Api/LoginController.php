@@ -2,47 +2,45 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class LoginController extends Controller
 {
-    /**
-     * Handle the incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // handle login request
     public function __invoke(Request $request)
     {
-        //membuat set validasi
+        // validate request
         $validator = Validator::make($request->all(), [
-            'email'     => 'required',
-            'password'  => 'required'
+            'email' => 'required|email',
+            'password' => 'required|string|min:6',
         ]);
-
-        //if validation fails
+    
+        // validation failed?
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
-
-        //get credentials from request
+    
+        // get credentials
         $credentials = $request->only('email', 'password');
-
-        //if auth failed
-        if(!$token = auth()->guard('api')->attempt($credentials)) {
+    
+        // authentication failed?
+        if (!$token = auth()->guard('api')->attempt($credentials)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Email atau Password Anda salah'
             ], 401);
         }
-
-        //if auth success
+    
+        // return response
         return response()->json([
             'success' => true,
-            'user'    => auth()->guard('api')->user(),    
-            'token'   => $token   
+            'user' => auth()->guard('api')->user(),
+            'token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => config('jwt.ttl') * 60
         ], 200);
     }
 }
